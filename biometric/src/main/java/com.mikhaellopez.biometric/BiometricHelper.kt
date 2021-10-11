@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment
  * BiometricHelper is an object that gives you access easier to
  * the feature of BiometricManager from AndroidX with more feature.
  */
-class BiometricHelper(private val fragment: Fragment) {
+class BiometricHelper(private val fragment: Fragment? = null, private val fragmentActivity: FragmentActivity? = null) {
 
     private val context: Context = fragment.context!!
     private val biometricManager: BiometricManager = BiometricManager.from(context)
@@ -149,11 +149,19 @@ class BiometricHelper(private val fragment: Fragment) {
         crypto: BiometricPrompt.CryptoObject? = null
     ) {
         if (biometricEnable()) {
-            BiometricPrompt(
-                fragment,
-                ContextCompat.getMainExecutor(context),
-                authenticationCallback
-            ).apply {
+            if (fragment != null) {
+                BiometricPrompt(
+                    fragment,
+                    ContextCompat.getMainExecutor(context),
+                    authenticationCallback
+                )
+            } else {
+                BiometricPrompt(
+                    fragmentActivity!!,
+                    ContextCompat.getMainExecutor(context),
+                    authenticationCallback
+                )
+            }.apply {
                 crypto?.also { authenticate(promptInfo, it) } ?: authenticate(promptInfo)
             }
         }
